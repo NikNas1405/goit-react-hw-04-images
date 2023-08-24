@@ -37,6 +37,9 @@ export default function App() {
         setTotalPages(Math.floor(images.totalHits / 12));
         setResults(false);
       } catch (error) {
+        setError(
+          'Something went wrong. Please refresh page or try again after some time.'
+        );
         return toast.error(
           'Something went wrong. Please refresh page or try again after some time.'
         );

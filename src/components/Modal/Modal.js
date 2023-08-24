@@ -7,17 +7,17 @@ import { Overlay, ModalBox, ModalDesc } from './Modal.styled';
 Modal.setAppElement('#root');
 
 export const ModalOverlay = ({ largeUrl, tags, onClick }) => {
-  useEffect(() => {
-    const handleKeyDown = event => {
-      if (event.code === 'Escape') {
-        onClick();
-      }
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    };
-  }, [onClick]);
+  // useEffect(() => {
+  //   const handleKeyDown = event => {
+  //     if (event.code === 'Escape') {
+  //       onClick();
+  //     }
+  //     window.addEventListener('keydown', handleKeyDown);
+  //     return () => {
+  //       window.removeEventListener('keydown', handleKeyDown);
+  //     };
+  //   };
+  // }, [onClick]);
 
   return (
     <Overlay className="overlay" onClick={onClick}>

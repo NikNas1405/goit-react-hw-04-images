@@ -29,7 +29,7 @@ export default function ImageGalleryItemComponent({ imgLarge, tags, imgUrl }) {
           tags={tags}
           isOpen={showModal}
           onClick={toogleModal}
-          />
+        />
       )}
     </ImageGalleryItem>
   );
