@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 import {
   Searchbar,
@@ -11,24 +11,19 @@ import { AiOutlineSearch } from 'react-icons/ai';
 
 import { toast } from 'react-toastify';
 
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-export class SearchBarComponent extends Component {
-  state = {
-    textForSearch: '',
-  };
+export default function SearchBarComponent({ onSubmit }) {
+  const [textForSearch, setTextForSearch] = useState('');
 
   // Записуємо в стейт значення інпута
-  onChangeSearchBarComponent = event => {
-    this.setState({ textForSearch: event.currentTarget.value.toLowerCase() });
+  const onChangeSearchBarComponent = event => {
+    setTextForSearch(event.currentTarget.value.toLowerCase());
   };
 
   // Передаємо в App значення нового value і очищуємо форму
-  onSubmitSearchBarComponent = event => {
+  const onSubmitSearchBarComponent = event => {
     event.preventDefault();
-
-    const { textForSearch } = this.state;
-    const { onSubmit } = this.props;
 
     if (textForSearch.trim() === '') {
       return toast.error('Please enter key words for search');
@@ -36,34 +31,24 @@ export class SearchBarComponent extends Component {
 
     onSubmit(textForSearch);
 
-    this.setState({
-      textForSearch: '',
-    });
+    setTextForSearch('');
   };
-
-  render() {
-    const { textForSearch } = this.state;
-    return (
-      <Searchbar className="searchbar">
-        <SearchForm className="form" onSubmit={this.onSubmitSearchBarComponent}>
-          <SearchFormButton type="submit" className="button">
-            <AiOutlineSearch size="24" />
-          </SearchFormButton>
-          <SearchFormInput
-            className="input"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={this.onChangeSearchBarComponent}
-            value={textForSearch}
-          />
-        </SearchForm>
-      </Searchbar>
-    );
-  }
+  return (
+    <Searchbar className="searchbar">
+      <SearchForm className="form" onSubmit={onSubmitSearchBarComponent}>
+        <SearchFormButton type="submit" className="button">
+          <AiOutlineSearch size="24" />
+        </SearchFormButton>
+        <SearchFormInput
+          className="input"
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={onChangeSearchBarComponent}
+          value={textForSearch}
+        />
+      </SearchForm>
+    </Searchbar>
+  );
 }
-
-SearchBarComponent.propType = {
-  onSubmitApp: PropTypes.func.isRequired,
-};

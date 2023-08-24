@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { GlobalStyle } from './GlobalStyle';
 
-import { SearchBarComponent } from './Searchbar/Searchbar';
+import SearchBarComponent from './Searchbar/Searchbar';
 import { ImageGalleryComponent } from './ImageGallery/ImageGallery';
 
 import { Loader } from '../components/Loader/Loader';
@@ -11,99 +11,72 @@ import { ButtonLoadMore } from '../components/Button/Button';
 import { toast, ToastContainer } from 'react-toastify';
 import { getAsked } from '../utils/get-api';
 
-export class App extends Component {
-  state = {
-    images: [],
-    textForSearch: '',
-    page: 1,
-    error: null,
-    isLoading: false,
-    totalPages: 0,
+export default function App() {
+  const [images, setImages] = useState([]);
+  const [textForSearch, setTextForSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [noResults, setResults] = useState(false);
 
-    noResults: false,
-  };
+  useEffect(() => {
+    if (textForSearch === '') return;
+    const getAskedImages = async () => {
+      setLoading(true);
+      try {
+        const images = await getAsked(textForSearch, page);
 
-  // Якщо оновився стейт рендеримо картинки
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.textForSearch !== this.state.textForSearch ||
-      prevState.page !== this.state.page
-    ) {
-      this.setState({
-        noResults: false,
-        loading: true,
-      });
-      this.getAskedImages();
-    }
-  }
+        if (images.hits.length === 0) {
+          setLoading(false);
+          setResults(true);
+          return;
+        }
 
-  getAskedImages = async () => {
-    const { textForSearch, page } = this.state;
-
-    this.setState({ isLoading: true });
-
-    try {
-      const images = await getAsked(textForSearch, page);
-
-      if (images.hits.length === 0) {
-        this.setState({
-          isLoading: false,
-          noResults: true,
-        });
-        return;
+        setImages(prevImages => [...prevImages, ...images.hits]);
+        setTotalPages(Math.floor(images.totalHits / 12));
+        setResults(false);
+      } catch (error) {
+        return toast.error(
+          'Something went wrong. Please refresh page or try again after some time.'
+        );
+      } finally {
+        setLoading(false);
       }
+    };
+    getAskedImages();
+    //  console.log(`HTTP запрос за ${textForSearch}, и page=${page}`);
+  }, [page, textForSearch]);
 
-      this.setState(prevState => ({
-        images: [...prevState.images, ...images.hits],
-        totalPages: Math.floor(images.totalHits / 12),
-        noResults: false,
-      }));
-    } catch (error) {
-      return toast.error(
-        'Something went wrong. Please refresh page or try again after some time.'
-      );
-    } finally {
-      this.setState({ isLoading: false });
-    }
+  const handleSearchSubmit = textForSearch => {
+    setImages([]);
+    setPage(1);
+    setTextForSearch(textForSearch);
   };
 
-  handleSearchSubmit = textForSearch => {
-    this.setState({
-      textForSearch,
-      images: [],
-      page: 1,
-    });
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
+  return (
+    <div>
+      <SearchBarComponent onSubmit={handleSearchSubmit} />
+      {error}
 
-  render() {
-    const { images, isLoading, error, totalPages, page, noResults } =
-      this.state;
+      {!page && <div>Let's start the searching.</div>}
+      <ImageGalleryComponent items={images} />
+      {isLoading && <Loader />}
+      {noResults && !isLoading && (
+        <div>
+          Nothing was found for your search query. Please, try with another one.
+        </div>
+      )}
+      {images.length !== 0 && page <= totalPages && (
+        <ButtonLoadMore onClickButtonLoadMore={handleLoadMore} />
+      )}
 
-    return (
-      <div>
-        <SearchBarComponent onSubmit={this.handleSearchSubmit} />
-        {error}
-
-        {!page && <div>Let's start the searching.</div>}
-        <ImageGalleryComponent items={images} />
-        {isLoading && <Loader />}
-        {noResults && !isLoading && (
-          <div>
-            Nothing was found for your search query. Please, try with another
-            one.
-          </div>
-        )}
-        {images.length !== 0 && page <= totalPages && (
-          <ButtonLoadMore onClickButtonLoadMore={this.handleLoadMore} />
-        )}
-
-        <ToastContainer autoClose={2000} />
-        <GlobalStyle />
-      </div>
-    );
-  }
+      <ToastContainer autoClose={2000} />
+      <GlobalStyle />
+    </div>
+  );
 }

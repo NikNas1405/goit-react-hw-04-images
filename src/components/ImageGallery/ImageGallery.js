@@ -1,5 +1,5 @@
 import { ImageGallery } from './ImageGallery.styled';
-import { ImageGalleryItemComponent } from '../ImageGalleryItem/ImageGalleryItem';
+import ImageGalleryItemComponent from '../ImageGalleryItem/ImageGalleryItem';
 
 // import PropTypes from 'prop-types';
 
@@ -17,4 +17,3 @@ export const ImageGalleryComponent = ({ items }) => {
     </ImageGallery>
   );
 };
-
